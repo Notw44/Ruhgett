@@ -57,11 +57,15 @@
   header::before{
     content:"";position:absolute;inset:0;z-index:-1;
     background:rgba(10,10,13,.88);
-    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
     border-bottom:1px solid var(--seam);
     opacity:0;transition:opacity .35s ease;
   }
-  header.scrolled::before{opacity:1}
+  /* blur only once scrolled — a live backdrop blur over the animating
+     canvas costs a GPU pass every frame for nothing visible */
+  header.scrolled::before{
+    opacity:1;
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  }
   .wordmark{display:flex;align-items:center;gap:12px;line-height:1}
   .wm-text{display:flex;flex-direction:column}
   .wordmark strong{
@@ -177,9 +181,8 @@
                0 14px 34px rgba(58,157,91,.34), 0 3px 8px rgba(0,0,0,.45);
   }
   .btn-ghost{
-    background:rgba(8,9,12,.45);color:var(--amber);
+    background:rgba(8,9,12,.62);color:var(--amber);
     border:1px solid rgba(58,157,91,.4);
-    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
   }
   .btn-ghost:hover{
@@ -192,9 +195,8 @@
   .unit-tag{
     position:absolute;z-index:3;transform:translate(-50%,-100%);
     font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
-    color:var(--amber);background:rgba(8,9,12,.55);
+    color:var(--amber);background:rgba(8,9,12,.72);
     border:1px solid rgba(58,157,91,.45);padding:7px 12px;cursor:pointer;
-    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
     white-space:nowrap;animation:tagPulse 2.4s ease-in-out infinite;
     transition:opacity .4s ease;
   }
@@ -530,14 +532,28 @@
    ============================================================ */
 (function(){
   const cv = document.getElementById('skyline');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!window.THREE){ cv.style.background='#07070c'; return; }
+
+  /* probe the GPU class up front so quality is calibrated from frame one:
+     mobile-class / older integrated chips start leaner, software rendering
+     gets a single premium still frame instead of a slideshow */
+  const gpuStr = (()=>{
+    try{
+      const g = document.createElement('canvas').getContext('webgl');
+      const d = g.getExtension('WEBGL_debug_renderer_info');
+      return d ? String(g.getParameter(d.UNMASKED_RENDERER_WEBGL)) : '';
+    }catch(e){ return ''; }
+  })();
+  if(/swiftshader|software rasterizer|llvmpipe/i.test(gpuStr)) reduced = true;
+  const weakGPU = /adreno|mali|powervr|videocore|intel.*\b(hd|uhd)\b/i.test(gpuStr);
 
   const smallScreen = Math.min(screen.width, screen.height) < 700;
   /* high-DPI screens already hide aliasing — skip MSAA there, keep it on 1x monitors */
   const basePR = Math.min(devicePixelRatio||1, smallScreen ? 1.6 : 2);
-  const renderer = new THREE.WebGLRenderer({canvas:cv, antialias: basePR < 1.5, powerPreference:'high-performance'});
-  renderer.setPixelRatio(basePR);
+  let prScale = weakGPU ? 0.85 : 1;    /* adaptive-quality scale, shrinks under load */
+  const renderer = new THREE.WebGLRenderer({canvas:cv, antialias: !weakGPU && basePR < 1.5, powerPreference:'high-performance'});
+  renderer.setPixelRatio(basePR*prScale);
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
@@ -984,7 +1000,9 @@
     grp.userData.dir=dir;
     scene.add(grp); cars.push(grp);
   }
-  for(let i=0;i<5;i++){ makeCar(0); makeCar(1); }
+  /* each car is ~24 draw calls — weak GPUs get 6 cars instead of 10 */
+  const carPairs = weakGPU ? 3 : 5;
+  for(let i=0;i<carPairs;i++){ makeCar(0); makeCar(1); }
 
   const signals=[];
   const poleMat=new THREE.MeshStandardMaterial({color:0x15171c,roughness:0.5,metalness:0.6,envMapIntensity:0.6});
@@ -1193,7 +1211,7 @@
   }, {passive:true});
   const v3 = new THREE.Vector3();
   let litCur = 1, parX = 0, parY = 0, igT = -1, wasLit = true;
-  let prScale = 1, ftAcc = 0, ftN = 0, lastFT = 0;   /* adaptive-quality state */
+  let ftAcc = 0, ftN = 0, lastFT = 0;   /* adaptive-quality frame timing */
 
   /* pause the render loop when the hero is offscreen (battery + scroll perf) */
   let heroOn = true, rafQueued = false;
@@ -1261,8 +1279,9 @@
       if(b.crown) b.crown.opacity = Math.max(0.04, b.mat.emissiveIntensity);
     }
 
-    /* someone turns a light on or off somewhere in the city (~every 0.7s) */
-    if(lit > 0.6 && Math.random() < 0.025){
+    /* someone turns a light on or off somewhere in the city (~every 0.7s);
+       skipped on weak GPUs — each toggle re-uploads a facade texture */
+    if(!weakGPU && lit > 0.6 && Math.random() < 0.025){
       const b = buildings[Math.floor(Math.random()*buildings.length)];
       const wdat = b.mat.userData && b.mat.userData.win;
       if(wdat){
@@ -1407,14 +1426,14 @@
     /* adaptive quality: if the GPU can't hold ~50fps after the intro,
        shave render resolution in small steps — the dark scene and film
        grain hide the difference; fast machines never downshift */
-    if(!reduced && sec > 4 && prScale > 0.75){
+    if(!reduced && sec > 3 && prScale > 0.6){
       if(lastFT){
         const dt = t - lastFT;
         if(dt < 250){ ftAcc += dt; ftN++; }
       }
-      if(ftN >= 60){
+      if(ftN >= 40){
         if(ftAcc/ftN > 21){
-          prScale = Math.max(0.75, prScale - 0.125);
+          prScale = Math.max(0.6, prScale - 0.15);
           renderer.setPixelRatio(basePR*prScale);
           size();
         }
