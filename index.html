@@ -17,7 +17,7 @@
 <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><path d="M16,4 H104 L116,16 V104 L104,116 H16 L4,104 V16 Z" fill="%2316171c"/><path d="M30,24 H46 V96 H30 Z" fill="%23a6a9b0"/><path d="M50,24 L82,24 L92,34 L92,52 L82,62 L50,62 L50,48 L74,48 L78,44 L78,42 L74,38 L50,38 Z" fill="%23a6a9b0"/><path d="M74,66 L56,66 L64,78 L54,78 L80,102 L72,84 L82,84 Z" fill="%233a9d5b"/></svg>'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bahiana&family=Saira+Condensed:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bahiana&family=Saira+Condensed:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --asphalt:#0a0a0d;
@@ -74,8 +74,9 @@
     text-shadow:0 0 10px rgba(58,157,91,.55), 0 0 26px rgba(58,157,91,.3);
   }
   .wordmark span{
-    font-family:var(--mono);font-size:10px;letter-spacing:.34em;
-    color:var(--amber);margin-top:4px;text-transform:uppercase;
+    font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.34em;
+    color:#4ec87b;margin-top:4px;text-transform:uppercase;
+    text-shadow:0 0 8px rgba(58,157,91,.65), 0 0 20px rgba(58,157,91,.35);
   }
   nav{display:flex;gap:26px}
   nav a{
@@ -120,11 +121,15 @@
   @keyframes heroIn{to{opacity:1;transform:none}}
   .hero-copy a{pointer-events:auto}
   .hero-eyebrow{
-    font-family:var(--mono);font-size:12px;letter-spacing:.28em;
-    text-transform:uppercase;color:var(--amber);margin-bottom:14px;
+    font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.28em;
+    text-transform:uppercase;color:#4ec87b;margin-bottom:14px;
     display:flex;align-items:center;gap:10px;
+    text-shadow:0 0 8px rgba(58,157,91,.7), 0 0 22px rgba(58,157,91,.4);
   }
-  .hero-eyebrow::before{content:"";width:34px;height:1px;background:var(--amber)}
+  .hero-eyebrow::before{
+    content:"";width:34px;height:2px;background:#4ec87b;
+    box-shadow:0 0 8px rgba(58,157,91,.8);
+  }
   h1{
     font-family:'Bahiana',var(--display);font-weight:400;text-transform:uppercase;
     font-size:clamp(48px,8vw,104px);
