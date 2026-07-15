@@ -91,7 +91,7 @@
       rgba(5,5,9,.92) 0%, rgba(5,5,9,.62) 22%, rgba(5,5,9,.22) 42%, transparent 60%);
   }
   .hero::before{
-    content:"";position:absolute;inset:-50%;z-index:1;pointer-events:none;
+    content:"";position:absolute;inset:-4%;z-index:1;pointer-events:none;
     opacity:.055;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
     animation:grain .9s steps(9) infinite;
@@ -533,13 +533,15 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!window.THREE){ cv.style.background='#07070c'; return; }
 
-  const renderer = new THREE.WebGLRenderer({canvas:cv, antialias:true, powerPreference:'high-performance'});
   const smallScreen = Math.min(screen.width, screen.height) < 700;
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1, smallScreen ? 1.6 : 2));
+  /* high-DPI screens already hide aliasing — skip MSAA there, keep it on 1x monitors */
+  const basePR = Math.min(devicePixelRatio||1, smallScreen ? 1.6 : 2);
+  const renderer = new THREE.WebGLRenderer({canvas:cv, antialias: basePR < 1.5, powerPreference:'high-performance'});
+  renderer.setPixelRatio(basePR);
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
-  const maxAniso = renderer.capabilities.getMaxAnisotropy();
+  const maxAniso = Math.min(4, renderer.capabilities.getMaxAnisotropy());
 
   const scene = new THREE.Scene();
   const skyLit  = new THREE.Color('#0a0c16');
@@ -668,12 +670,14 @@
   const rows = [{z:0,s:1,front:true},{z:-30,s:1.15,front:false},{z:-62,s:1.32,front:false}];
   let minX=1e9, maxX=-1e9;
 
-  function addRoofKit(grp, w, d, topY){
+  /* repeated static boxes (trims, balconies, roof gear) get collected and
+     baked into three InstancedMeshes — one draw call each instead of ~150 */
+  const trimJobs = [], balJobs = [], roofJobs = [];
+
+  function addRoofKit(grp, w, d, topY, bx, bz){
     if(Math.random()<0.6){
-      const r = new THREE.Mesh(boxGeo, darkMat);
-      r.scale.set(w*0.35, 1.6+Math.random()*1.2, d*0.35);
-      r.position.set((Math.random()-0.5)*w*0.3, topY, (Math.random()-0.5)*d*0.3);
-      grp.add(r);
+      roofJobs.push({px:bx+(Math.random()-0.5)*w*0.3, py:topY, pz:bz+(Math.random()-0.5)*d*0.3,
+                     sx:w*0.35, sy:1.6+Math.random()*1.2, sz:d*0.35});
     }
     if(Math.random()<0.3){                              /* water tank */
       const t = new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,1.6,10), darkMat);
@@ -727,25 +731,17 @@
       }
       /* beveled-corner trims: front row only (perf) */
       if(front){
-        for(const sx of [-1,1]) for(const sz of [-1,1]){
-          const tr = new THREE.Mesh(boxGeo, trimMat);
-          tr.scale.set(0.28, h, 0.28);
-          tr.position.set(sx*w/2, 0, sz*d/2);
-          grp.add(tr);
-        }
+        for(const cx of [-1,1]) for(const cz of [-1,1])
+          trimJobs.push({px:x+cx*w/2, py:0, pz:z+cz*d/2, sx:0.28, sy:h, sz:0.28});
         /* balconies on some concrete front-row towers */
         if(mat.roughness > 0.5 && Math.random()<0.3){
-          const bGeo = boxGeo, step = Math.max(2, Math.round(h/9));
-          for(let yy=3; yy<h-2; yy+=step){
-            const bal = new THREE.Mesh(bGeo, darkMat);
-            bal.scale.set(w*0.85, 0.14, 0.5);
-            bal.position.set(0, yy, d/2+0.26);
-            grp.add(bal);
-          }
+          const step = Math.max(2, Math.round(h/9));
+          for(let yy=3; yy<h-2; yy+=step)
+            balJobs.push({px:x, py:yy, pz:z+d/2+0.26, sx:w*0.85, sy:0.14, sz:0.5});
         }
       }
     }
-    addRoofKit(grp, w, d, topY);
+    addRoofKit(grp, w, d, topY, x, z);
     grp.position.set(x, 0, z);
     scene.add(grp);
     info.mat = mat; info.h = topY;
@@ -762,6 +758,23 @@
       minX = Math.min(minX, b.x); maxX = Math.max(maxX, b.x);
     }
   }
+
+  function bakeInstances(jobs, mat){
+    if(!jobs.length) return;
+    const im = new THREE.InstancedMesh(boxGeo, mat, jobs.length);
+    const m4 = new THREE.Matrix4();
+    jobs.forEach((j,i)=>{
+      m4.makeScale(j.sx, j.sy, j.sz);
+      m4.setPosition(j.px, j.py, j.pz);
+      im.setMatrixAt(i, m4);
+    });
+    im.instanceMatrix.needsUpdate = true;
+    im.frustumCulled = false;   /* base geo's bounds don't cover the spread-out instances */
+    scene.add(im);
+  }
+  bakeInstances(trimJobs, trimMat);
+  bakeInstances(balJobs, darkMat);
+  bakeInstances(roofJobs, darkMat);
   for(const b of buildings){
     b.sweep = (b.x-minX)/(maxX-minX);
     b.th = 0.2 + Math.random()*0.6;
@@ -1180,6 +1193,7 @@
   }, {passive:true});
   const v3 = new THREE.Vector3();
   let litCur = 1, parX = 0, parY = 0, igT = -1, wasLit = true;
+  let prScale = 1, ftAcc = 0, ftN = 0, lastFT = 0;   /* adaptive-quality state */
 
   /* pause the render loop when the hero is offscreen (battery + scroll perf) */
   let heroOn = true, rafQueued = false;
@@ -1389,6 +1403,26 @@
     }
 
     renderer.render(scene, cam);
+
+    /* adaptive quality: if the GPU can't hold ~50fps after the intro,
+       shave render resolution in small steps — the dark scene and film
+       grain hide the difference; fast machines never downshift */
+    if(!reduced && sec > 4 && prScale > 0.75){
+      if(lastFT){
+        const dt = t - lastFT;
+        if(dt < 250){ ftAcc += dt; ftN++; }
+      }
+      if(ftN >= 60){
+        if(ftAcc/ftN > 21){
+          prScale = Math.max(0.75, prScale - 0.125);
+          renderer.setPixelRatio(basePR*prScale);
+          size();
+        }
+        ftAcc = 0; ftN = 0;
+      }
+    }
+    lastFT = t;
+
     if(!reduced){ rafQueued = true; requestAnimationFrame(tick); }
   }
 
