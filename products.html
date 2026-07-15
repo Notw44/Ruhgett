@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Line — Ruhgett Material, Los Angeles</title>
+<meta name="description" content="The Ruhgett Material line: portable power stations for Los Angeles, sized by what you refuse to lose.">
+<meta name="theme-color" content="#0a0a0d">
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><path d="M16,4 H104 L116,16 V104 L104,116 H16 L4,104 V16 Z" fill="%2316171c"/><path d="M30,24 H46 V96 H30 Z" fill="%23a6a9b0"/><path d="M50,24 L82,24 L92,34 L92,52 L82,62 L50,62 L50,48 L74,48 L78,44 L78,42 L74,38 L50,38 Z" fill="%23a6a9b0"/><path d="M74,66 L56,66 L64,78 L54,78 L80,102 L72,84 L82,84 Z" fill="%233a9d5b"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bahiana&family=Saira+Condensed:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --asphalt:#0a0a0d;
+    --iron:#131418;
+    --seam:#22242b;
+    --bone:#ece8e1;
+    --concrete:#8a8d93;
+    --amber:#3a9d5b;
+    --amber-dim:#245c37;
+    --display:'Saira Condensed',sans-serif;
+    --body:'IBM Plex Sans',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--asphalt);color:var(--bone);
+    font-family:var(--body);font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  ::selection{background:var(--amber);color:var(--asphalt)}
+  a{color:inherit;text-decoration:none}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+
+  /* ---------- arrival: the warp flash lands here and the page swings in ---------- */
+  #flash{
+    position:fixed;inset:0;z-index:100;pointer-events:none;
+    background:radial-gradient(circle at 50% 45%,
+      #eafff0 0%, #7ee6a0 18%, #3a9d5b 34%, rgba(6,19,11,.97) 72%);
+    animation:flashOut 1s ease .1s forwards;
+  }
+  @keyframes flashOut{to{opacity:0;visibility:hidden}}
+  .stage{perspective:1200px}
+  .swing{
+    transform-origin:50% 0;
+    animation:swingIn 1.1s cubic-bezier(.2,.8,.2,1) .15s both;
+  }
+  @keyframes swingIn{
+    from{opacity:0;transform:rotateX(-9deg) translateY(46px) scale(.985)}
+    to{opacity:1;transform:none}
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:calc(18px + env(safe-area-inset-top)) 24px 18px;
+    background:linear-gradient(to bottom, rgba(10,10,13,.92), rgba(10,10,13,0));
+  }
+  header::before{
+    content:"";position:absolute;inset:0;z-index:-1;
+    background:rgba(10,10,13,.88);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--seam);
+    opacity:0;transition:opacity .35s ease;
+  }
+  header.scrolled::before{opacity:1}
+  .wordmark{display:flex;align-items:center;gap:12px;line-height:1}
+  .wm-text{display:flex;flex-direction:column}
+  .wordmark strong{
+    font-family:var(--display);font-weight:800;font-size:22px;
+    letter-spacing:.06em;text-transform:uppercase;
+    text-shadow:0 0 10px rgba(58,157,91,.55), 0 0 26px rgba(58,157,91,.3);
+  }
+  .wordmark span{
+    font-family:var(--mono);font-size:10px;letter-spacing:.34em;
+    color:var(--amber);margin-top:4px;text-transform:uppercase;
+  }
+  .back{
+    font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--concrete);transition:color .25s;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .back::before{content:"\2190";transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+  .back:hover{color:var(--amber)}
+  .back:hover::before{transform:translateX(-4px)}
+
+  /* ---------- page head ---------- */
+  main{max-width:1120px;margin:0 auto;padding:calc(130px + env(safe-area-inset-top)) 24px 90px}
+  .sec-label{
+    font-family:var(--mono);font-size:12px;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--amber);margin-bottom:16px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .sec-label::before{content:"";width:34px;height:1px;background:var(--amber)}
+  h1{
+    font-family:'Bahiana',var(--display);font-weight:400;text-transform:uppercase;
+    font-size:clamp(46px,7vw,88px);line-height:.88;letter-spacing:.02em;
+    margin-bottom:22px;text-wrap:balance;
+  }
+  h1 em{
+    font-style:normal;color:var(--amber);
+    text-shadow:0 0 12px rgba(58,157,91,.75), 0 0 34px rgba(58,157,91,.45);
+  }
+  .lede{max-width:640px;color:var(--concrete);font-size:17px;text-wrap:pretty}
+
+  /* ---------- class groups ---------- */
+  .class-block{margin-top:74px}
+  .class-head{
+    display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;
+    border-bottom:1px solid var(--seam);padding-bottom:14px;margin-bottom:26px;
+  }
+  .class-head .cls{
+    font-family:var(--mono);font-size:12px;letter-spacing:.26em;
+    text-transform:uppercase;color:var(--amber);
+  }
+  .class-head h2{
+    font-family:'Bahiana',var(--display);font-weight:400;text-transform:uppercase;
+    font-size:clamp(34px,4.5vw,52px);line-height:.9;letter-spacing:.02em;
+  }
+  .class-head .covers{
+    margin-left:auto;font-family:var(--mono);font-size:12px;
+    letter-spacing:.08em;color:var(--concrete);
+  }
+  .items{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr))}
+  .item{
+    border:1px solid var(--seam);background:var(--iron);
+    padding:28px 26px;position:relative;overflow:hidden;
+    transition:border-color .3s, transform .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .item:hover{border-color:var(--amber-dim);transform:translateY(-3px)}
+  .item .slot{
+    font-family:var(--mono);font-size:11px;letter-spacing:.26em;
+    text-transform:uppercase;color:var(--amber);margin-bottom:10px;
+  }
+  .item h3{
+    font-family:'Bahiana',var(--display);font-weight:400;text-transform:uppercase;
+    font-size:32px;line-height:1;letter-spacing:.02em;margin-bottom:18px;
+  }
+  .spec{border-top:1px solid var(--seam)}
+  .spec-row{
+    display:flex;justify-content:space-between;gap:14px;
+    padding:10px 0;border-bottom:1px solid var(--seam);
+    font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;
+  }
+  .spec-row dt{color:var(--concrete)}
+  .spec-row dd{color:var(--bone)}
+  .stamp{
+    margin-top:20px;display:inline-block;
+    font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--amber);border:1px dashed var(--amber-dim);
+    padding:8px 13px;transform:rotate(-1.2deg);
+  }
+  .line-note{
+    margin-top:60px;font-family:var(--mono);font-size:12.5px;
+    color:var(--concrete);letter-spacing:.04em;max-width:560px;
+  }
+  .cta-row{margin-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+    padding:16px 30px;cursor:pointer;display:inline-flex;align-items:center;gap:10px;
+    border-radius:2px;position:relative;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, background .3s ease;
+  }
+  .btn::after{content:"\2192";font-size:14px;line-height:1;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+  .btn:hover::after{transform:translateX(4px)}
+  .btn-solid{
+    background:linear-gradient(180deg,#46b46b 0%,#2f8a4d 100%);
+    color:#06130b;font-weight:600;border:1px solid rgba(255,255,255,.16);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.22),
+               0 8px 24px rgba(58,157,91,.22), 0 0 22px rgba(58,157,91,.4);
+  }
+  .btn-solid:hover{
+    transform:translateY(-2px);
+    background:linear-gradient(180deg,#4fc276 0%,#349655 100%);
+  }
+
+  footer{
+    border-top:1px solid var(--seam);padding:44px 24px calc(60px + env(safe-area-inset-bottom));
+    display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;
+    max-width:1120px;margin:0 auto;
+  }
+  footer .fm{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--concrete);text-transform:uppercase}
+  footer .fm b{color:var(--amber);font-weight:500}
+
+  @media (max-width:640px){
+    main{padding:calc(108px + env(safe-area-inset-top)) 20px 70px}
+    .class-head .covers{margin-left:0;width:100%}
+    .class-block{margin-top:56px}
+    .wordmark strong{font-size:19px}
+    .back .bs{display:none}   /* "Back" only — keeps the header on one line */
+    .cta-row .btn{width:100%;justify-content:center}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #flash{animation:none;opacity:0;visibility:hidden}
+    .swing{animation:none}
+    .btn,.btn::after,.item{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<div id="flash" aria-hidden="true"></div>
+
+<header>
+  <a class="wordmark" href="index.html" aria-label="Ruhgett Material home">
+    <svg viewBox="0 0 120 120" width="40" height="40" aria-hidden="true" style="flex:none">
+      <path d="M16,4 H104 L116,16 V104 L104,116 H16 L4,104 V16 Z" fill="#16171c" stroke="#3a3d45" stroke-width="2"/>
+      <path d="M30,24 H46 V96 H30 Z" fill="#a6a9b0"/>
+      <path d="M50,24 L82,24 L92,34 L92,52 L82,62 L50,62 L50,48 L74,48 L78,44 L78,42 L74,38 L50,38 Z" fill="#a6a9b0"/>
+      <path d="M28,48 L37,53 L35,60 L44,66" stroke="#3d4047" stroke-width="1.4" fill="none"/>
+      <path d="M74,66 L56,66 L64,78 L54,78 L80,102 L72,84 L82,84 Z" fill="#3a9d5b"/>
+    </svg>
+    <span class="wm-text">
+      <strong>Ruhgett Material</strong>
+      <span>Los Angeles</span>
+    </span>
+  </a>
+  <a class="back" href="index.html">Back<span class="bs"> to the street</span></a>
+</header>
+
+<div class="stage">
+<main class="swing">
+  <p class="sec-label">Inside the unit — Full inventory</p>
+  <h1>The line, <em>unit by unit.</em></h1>
+  <p class="lede">Every slot below is a portable power station from an established manufacturer — lithium storage, wall-and-solar charging, full factory warranty. Specs and pricing lock in as dealer allocations are confirmed.</p>
+
+  <!-- ============ CLASS 01 ============ -->
+  <div class="class-block">
+    <div class="class-head">
+      <span class="cls">Class 01 / Carry</span>
+      <h2>Keep the essentials</h2>
+      <span class="covers">Covers: phones · lights · wifi</span>
+    </div>
+    <div class="items">
+      <div class="item">
+        <p class="slot">Slot C-01</p>
+        <h3>Compact carry unit</h3>
+        <dl class="spec">
+          <div class="spec-row"><dt>Capacity</dt><dd>~300 Wh class</dd></div>
+          <div class="spec-row"><dt>Output</dt><dd>AC ×1 · USB-C</dd></div>
+          <div class="spec-row"><dt>Weight</dt><dd>Grab-and-go</dd></div>
+          <div class="spec-row"><dt>Recharge</dt><dd>Wall · Solar</dd></div>
+        </dl>
+        <span class="stamp">Allocation pending</span>
+      </div>
+      <div class="item">
+        <p class="slot">Slot C-02</p>
+        <h3>Extended carry unit</h3>
+        <dl class="spec">
+          <div class="spec-row"><dt>Capacity</dt><dd>~500 Wh class</dd></div>
+          <div class="spec-row"><dt>Output</dt><dd>AC ×2 · USB-C</dd></div>
+          <div class="spec-row"><dt>Weight</dt><dd>One-hand carry</dd></div>
+          <div class="spec-row"><dt>Recharge</dt><dd>Wall · Solar</dd></div>
+        </dl>
+        <span class="stamp">Allocation pending</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CLASS 02 ============ -->
+  <div class="class-block">
+    <div class="class-head">
+      <span class="cls">Class 02 / Hold</span>
+      <h2>Hold the household</h2>
+      <span class="covers">Covers: fridge · CPAP · work setup</span>
+    </div>
+    <div class="items">
+      <div class="item">
+        <p class="slot">Slot H-01</p>
+        <h3>Household base unit</h3>
+        <dl class="spec">
+          <div class="spec-row"><dt>Capacity</dt><dd>~1 kWh class</dd></div>
+          <div class="spec-row"><dt>Output</dt><dd>AC ×4 · 1800 W class</dd></div>
+          <div class="spec-row"><dt>Runs</dt><dd>Fridge overnight</dd></div>
+          <div class="spec-row"><dt>Recharge</dt><dd>Wall · Solar</dd></div>
+        </dl>
+        <span class="stamp">Allocation pending</span>
+      </div>
+      <div class="item">
+        <p class="slot">Slot H-02</p>
+        <h3>Household plus unit</h3>
+        <dl class="spec">
+          <div class="spec-row"><dt>Capacity</dt><dd>~2 kWh class</dd></div>
+          <div class="spec-row"><dt>Output</dt><dd>AC ×4 · 2400 W class</dd></div>
+          <div class="spec-row"><dt>Runs</dt><dd>Fridge + CPAP + desk</dd></div>
+          <div class="spec-row"><dt>Recharge</dt><dd>Wall · Solar</dd></div>
+        </dl>
+        <span class="stamp">Allocation pending</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CLASS 03 ============ -->
+  <div class="class-block">
+    <div class="class-head">
+      <span class="cls">Class 03 / Run</span>
+      <h2>Run the house</h2>
+      <span class="covers">Covers: rooms · appliances · days</span>
+    </div>
+    <div class="items">
+      <div class="item">
+        <p class="slot">Slot R-01</p>
+        <h3>Whole-home core</h3>
+        <dl class="spec">
+          <div class="spec-row"><dt>Capacity</dt><dd>~3.6 kWh class</dd></div>
+          <div class="spec-row"><dt>Output</dt><dd>3600 W class · 240 V ready</dd></div>
+          <div class="spec-row"><dt>Runs</dt><dd>Rooms for days</dd></div>
+          <div class="spec-row"><dt>Recharge</dt><dd>Wall · Solar · Expandable</dd></div>
+        </dl>
+        <span class="stamp">Allocation pending</span>
+      </div>
+      <div class="item">
+        <p class="slot">Slot R-02</p>
+        <h3>Expansion battery</h3>
+        <dl class="spec">
+          <div class="spec-row"><dt>Capacity</dt><dd>Stacks on R-01</dd></div>
+          <div class="spec-row"><dt>Output</dt><dd>Feeds the core</dd></div>
+          <div class="spec-row"><dt>Runs</dt><dd>Doubles the days</dd></div>
+          <div class="spec-row"><dt>Recharge</dt><dd>Wall · Solar</dd></div>
+        </dl>
+        <span class="stamp">Allocation pending</span>
+      </div>
+      <div class="item">
+        <p class="slot">Slot R-03</p>
+        <h3>Solar input kit</h3>
+        <dl class="spec">
+          <div class="spec-row"><dt>Capacity</dt><dd>Panel array</dd></div>
+          <div class="spec-row"><dt>Output</dt><dd>Recharges off-grid</dd></div>
+          <div class="spec-row"><dt>Runs</dt><dd>Indefinite loop</dd></div>
+          <div class="spec-row"><dt>Recharge</dt><dd>The sun, obviously</dd></div>
+        </dl>
+        <span class="stamp">Allocation pending</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="line-note">// Spec sheets and pricing publish when dealer allocations are confirmed. Launch-list members see the line first — and get first allocation.</p>
+  <div class="cta-row">
+    <a class="btn btn-solid" href="index.html#notify">Join the launch list</a>
+  </div>
+</main>
+</div>
+
+<footer>
+  <p class="fm"><b>Ruhgett Material</b> · Los Angeles, CA</p>
+  <p class="fm">© 2026 · Built for the next outage</p>
+</footer>
+
+<script>
+(function(){
+  const h = document.querySelector('header');
+  const set = ()=> h.classList.toggle('scrolled', scrollY > 40);
+  addEventListener('scroll', set, {passive:true});
+  set();
+})();
+</script>
+</body>
+</html>
